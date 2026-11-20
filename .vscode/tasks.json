@@ -1,0 +1,107 @@
+{
+    // ビルド設定は CMakePresets.json を使う
+    // Linux / macOS: Unix Makefiles (debug / release)
+    // Windows: Visual Studio ジェネレーター (windows)
+    "version": "2.0.0",
+    "options": {
+        "cwd": "${workspaceFolder}"
+    },
+    "tasks": [
+        {
+            "label": "CMake: configure (Debug)",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--preset", "debug"],
+            "windows": {
+                "args": ["--preset", "windows"]
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "CMake: configure (Release)",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--preset", "release"],
+            "windows": {
+                // Debug / Release はビルド時に選ぶので configure は共通
+                "args": ["--preset", "windows"]
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "CMake: build",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "--preset", "debug"],
+            "windows": {
+                "args": ["--build", "--preset", "windows-debug"]
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc", "$msCompile"]
+        },
+        {
+            "label": "CMake: build (Debug)",
+            "dependsOrder": "sequence",
+            "dependsOn": ["CMake: configure (Debug)", "CMake: build"],
+            "problemMatcher": []
+        },
+        {
+            "label": "CMake: build (Release)",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "--preset", "release"],
+            "windows": {
+                "args": ["--build", "--preset", "windows-release"]
+            },
+            "dependsOn": "CMake: configure (Release)",
+            "problemMatcher": ["$gcc", "$msCompile"]
+        },
+        {
+            "label": "CMake: build (Debug + Release)",
+            "dependsOrder": "sequence",
+            "dependsOn": ["CMake: build (Debug)", "CMake: build (Release)"],
+            "problemMatcher": []
+        },
+        {
+            "label": "CMake: clean",
+            "type": "shell",
+            "command": "cmake",
+            "args": ["--build", "--preset", "debug", "--target", "clean"],
+            "windows": {
+                "args": ["--build", "--preset", "windows-debug", "--target", "clean"]
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run ImGuiApp",
+            "type": "shell",
+            "command": "${workspaceFolder}/build/ImGuiApp",
+            "windows": {
+                "command": "${workspaceFolder}/build/Debug/ImGuiApp.exe"
+            },
+            "dependsOn": "CMake: build",
+            "presentation": {
+                "focus": true,
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run ImGuiApp (Release)",
+            "type": "shell",
+            "command": "${workspaceFolder}/build-release/ImGuiApp",
+            "windows": {
+                "command": "${workspaceFolder}/build/Release/ImGuiApp.exe"
+            },
+            "dependsOn": "CMake: build (Release)",
+            "presentation": {
+                "focus": true,
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        }
+    ]
+}
